@@ -112,5 +112,8 @@ function getBasketTemplate(header, items, footer) {
 }
 
 function getOrderButtonTemplate() {
+  if (basketItems.length === 0) {
+    return `<button class="order-button disabled" disabled>Jetzt bestellen</button>`;
+  }
   return `<button class="order-button" onclick="placeOrder()">Jetzt bestellen</button>`;
 }
