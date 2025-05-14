@@ -5,79 +5,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bestellapp</title>
+        <link rel="stylesheet" href="./styles/media-quarry.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="./assets/img/favicon-16x16.png" type="image/x-icon">
 </head>
 
 <body onload="renderAll()">
     <header>
-        <div>
-            <img src="./assets/img/Bestell App- Logo.svg" alt="Tempel">
+        <div class="container header-inner">
+            <div>
+                <img src="./assets/img/Bestell App- Logo.svg" alt="Tempel">
+            </div>
+            <div class="burger-menu" id="burger_menu_button" onclick="toggleBurgerMenu()">☰</div>
+            <nav class="burger-navigation" id="burger_nav">
+                <a onclick="activateCategory('dishes'); closeBurgerMenu(); toggleBurgerButton()">Hauptgerichte</a>
+                <a onclick="activateCategory('drinks'); closeBurgerMenu(); toggleBurgerButton()">Getränke</a>
+                <a onclick="activateCategory('desserts'); closeBurgerMenu(); toggleBurgerButton()">Desserts</a>
+            </nav>
         </div>
-        <div class="burger-menu" onclick="toggleBurgerMenu()">☰</div>
-        <nav class="burger-navigation" id="burgerNav">
-            <a onclick="activateCategory('dishes'); closeBurgerMenu()">Hauptgerichte</a>
-            <a onclick="activateCategory('drinks'); closeBurgerMenu()">Getränke</a>
-            <a onclick="activateCategory('desserts'); closeBurgerMenu()">Desserts</a>
-        </nav>
+        <img src="./assets/img/android-chrome-512x512.png" alt="Logo" class="overlap-image">
     </header>
 
-    <div class="content-wrapper">
-        <section class="content" id="content">
-            <div class="main-img">
-                <div class="rated">
-                    <img src="./assets/img/gyro.jpg" alt="Bewertetes Gericht">
-                    <h1>Gyros</h1>
-                    <div>
-                        <p id="ratingText" class="rated-text"><b>Deine Bewertung:</b> (0,0 von 5 Sternen)</p>
-                        <div class="stars">
-                            <span onclick="rate(1)" id="star1">★</span>
-                            <span onclick="rate(2)" id="star2">★</span>
-                            <span onclick="rate(3)" id="star3">★</span>
-                            <span onclick="rate(4)" id="star4">★</span>
-                            <span onclick="rate(5)" id="star5">★</span>
-                            <p id="averageRatingText"><b>Durchschnittliche Bewertung:</b> 0,0 von 5 Sternen</p>
-                            <p id="numReviewsText"><b>Anzahl der Bewertungen:</b> 0</p>
+    <main>
+        <div class="content-wrapper">
+            <section class="content" id="main_content">
+                <div class="main-img">
+                    <div class="rated">
+                        <img src="./assets/img/gyro.jpg" alt="Bewertetes Gericht">
+                        <h1>Gyros</h1>
+                        <div>
+                            <div class="stars">
+                                <span onclick="rateByStar(1)" id="star_1">★</span>
+                                <span onclick="rateByStar(2)" id="star_2">★</span>
+                                <span onclick="rateByStar(3)" id="star_3">★</span>
+                                <span onclick="rateByStar(4)" id="star_4">★</span>
+                                <span onclick="rateByStar(5)" id="star_5">★</span>
+                                <p id="average_rating_text"><b>&#8709;:</b> 0,0 von 5 Sternen</p>
+                                <p id="num_reviews_text">0x <b>bewertet:</b></p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <nav class="menu-navigation">
-                <div id="dishesLink" class="menu-item" onclick="activateCategory('dishes')">
-                    <h2>Hauptgerichte</h2>
-                </div>
-                <div id="drinksLink" class="menu-item" onclick="activateCategory('drinks')">
-                    <h2>Getränke</h2>
-                </div>
-                <div id="dessertsLink" class="menu-item" onclick="activateCategory('desserts')">
-                    <h2>Desserts</h2>
-                </div>
-            </nav>
-        </section>
+                <nav class="menu-navigation">
+                    <div id="dishes_link" class="menu-item" onclick="activateCategory('dishes')">
+                        <h2>Hauptgerichte</h2>
+                    </div>
+                    <div id="drinks_link" class="menu-item" onclick="activateCategory('drinks')">
+                        <h2>Getränke</h2>
+                    </div>
+                    <div id="desserts_link" class="menu-item" onclick="activateCategory('desserts')">
+                        <h2>Desserts</h2>
+                    </div>
+                </nav>
+            </section>
 
-        <section class="basket-wrapper">
-            <button class="close-basket-button" onclick="toggleBasket()">✕</button>
-            <div class="basket" id="basket-container">
-                <div class="basket-header">Warenkorb</div>
-                <div class="basket-items">
+            <section class="basket-wrapper">
+                <button class="close-basket-button" onclick="toggleBasket()">✕</button>
+                <div class="basket" id="basket_container">
+                    <div class="basket-header">Warenkorb</div>
+                    <div class="basket-main">
+                    </div>
+                    <div class="basket-footer">
+                        <p>Zwischensumme: 87.94 €</p>
+                        <p>Liefergebühr: 4.99 €</p>
+                        <p><strong>Gesamt: 92.93 €</strong></p>
+                        <button onclick="placeOrder()">Jetzt bestellen</button>
+                    </div>
                 </div>
-                <div class="basket-footer">
-                    <p>Zwischensumme: 87.94 €</p>
-                    <p>Liefergebühr: 4.99 €</p>
-                    <p><strong>Gesamt: 92.93 €</strong></p>
-                    <button onclick="placeOrder()">Jetzt bestellen</button>
-                </div>
-            </div>
-        </section>
-    </div>
+            </section>
 
-    <div class="open-basket-button-position">
-        <button id="openBasketBtn" class="open-basket-button" onclick="toggleBasket()">Warenkorb</button>
-    </div>
+            <div class="open-basket-button-position">
+                <button id="open_basket_btn" class="open-basket-button" onclick="toggleBasket()">Warenkorb</button>
+            </div>
+        </div>
+    </main>
 
     <footer>
-        <img src="./assets/img/Logo.png" alt="Icon">
-        Created: May 2025
+        <div class="container">
+            <img src="./assets/img/Logo.png" alt="Icon">
+            <div class="footer-links">
+                <div>
+                    <a href="index.html">Impressum</a>
+                </div>
+                |
+                <div>
+                    <a href="index.html">AGB</a>
+                </div>
+                |
+                <div>
+                    <a href="index.html">Datenschutz</a>
+                </div>
+            </div>
+            Created: May 2025
+        </div>
     </footer>
 
     <script src="scripts/templates.js"></script>

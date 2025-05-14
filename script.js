@@ -1,43 +1,41 @@
 let deliveryPrice = 4.99;
 let basketItems = [];
 let isDelivery = true;
+let ratings = [];
 
 function renderMyDishes() {
-  let contentRef = document.getElementById('content');
+  let contentRef = document.getElementById('main_content');
   contentRef.innerHTML += getDishes();
 }
 
 function renderMyDrinks() {
-  let contentRef = document.getElementById('content');
+  let contentRef = document.getElementById('main_content');
   contentRef.innerHTML += getDrinks();
 }
 
 function renderMyDesserts() {
-  let contentRef = document.getElementById('content');
+  let contentRef = document.getElementById('main_content');
   contentRef.innerHTML += getDesserts();
 }
 
 function renderMyOrder() {
-  let basketContainer = document.getElementById('basket-container');
+  let basketContainer = document.getElementById('basket_container');
   let header = getBasketHeaderTemplate();
   let items = '';
   let footer = '';
   if (basketItems.length === 0) {
     items = getEmptyBasketMessageTemplate();
   } else {
-    let totalSum = 0;
+    let totalSummary = 0;
     for (let itemIndex = 0; itemIndex < basketItems.length; itemIndex++) {
       let item = basketItems[itemIndex];
-      totalSum += item.totalPrice;
+      totalSummary += item.totalPrice;
       items += getBasketItemTemplate(item, itemIndex);
     }
-    footer = getBasketSummary(totalSum);
+    footer = getBasketSummary(totalSummary);
     footer += `<button class="order-button" onclick="placeOrder()">Jetzt bestellen</button>`;
   }
-  basketContainer.innerHTML = `<div class="basket-header">${header}</div>
-                                <div class="basket-items">${items}</div>
-                                <div class="basket-footer">${footer}</div>`;
-
+  basketContainer.innerHTML = getBasketDivTemplate(header, items, footer);
   saveToLocalStorage();
 }
 
@@ -58,9 +56,9 @@ function removeBasketItem(index) {
 }
 
 function toggleDelivery() {
-  let toggle = document.getElementById('deliveryToggle');
+  let toggle = document.getElementById('delivery_toggle');
   isDelivery = toggle.checked;
-  let switchText = document.getElementById('switchText');
+  let switchText = document.getElementById('switch_text');
   switchText.innerText = isDelivery ? 'Lieferung' : 'Abholung';
   renderMyOrder();
   saveToLocalStorage();
@@ -159,11 +157,11 @@ function getDessertsList() {
   return list;
 }
 
-function getBasketSummary(totalSum) {
+function getBasketSummary(totalSummary) {
   let deliveryFee = isDelivery ? deliveryPrice : 0;
-  let totalWithDelivery = totalSum + deliveryFee;
+  let totalWithDelivery = totalSummary + deliveryFee;
   let summary = `<div class="order-summary">`;
-  summary += getBasketSummarySubtotalTemplate(totalSum);
+  summary += getBasketSummarySubtotalTemplate(totalSummary);
   summary += getBasketSummaryDeliveryFeeTemplate(deliveryFee);
   summary += getBasketSummaryTotalTemplate(totalWithDelivery);
   summary += `</div>`;
@@ -202,26 +200,44 @@ function renderAll() {
   renderMyDrinks();
   renderMyDesserts();
   renderMyOrder();
-  document.getElementById('dishesLink').onclick = () => activateCategory('dishes');
-  document.getElementById('drinksLink').onclick = () => activateCategory('drinks');
-  document.getElementById('dessertsLink').onclick = () => activateCategory('desserts');
+  document.getElementById('dishes_link').onclick = () => activateCategory('dishes');
+  document.getElementById('drinks_link').onclick = () => activateCategory('drinks');
+  document.getElementById('desserts_link').onclick = () => activateCategory('desserts');
   activateCategory('dishes');
 }
 
+function closeBurgerMenu() {
+  let burgerNav = document.getElementById('burger_nav');
+  let burgerButton = document.getElementById('burger_menu_button');
+  burgerNav.style.display = 'none';
+  burgerButton.innerHTML = '☰';
+}
+
 function toggleBurgerMenu() {
-  let burgerNav = document.getElementById('burgerNav');
-  burgerNav.style.display = burgerNav.style.display === 'flex' ? 'none' : 'flex';
+  let burgerNav = document.getElementById('burger_nav');
+  let burgerButton = document.getElementById('burger_menu_button');
+  if (burgerNav.style.display === 'flex') {
+    burgerNav.style.display = 'none';
+    burgerButton.innerHTML = '☰';
+  } else {
+    burgerNav.style.display = 'flex';
+    burgerButton.innerHTML = '✕';
+  }
+}
+
+function toggleBurgerButton() {
+  let burgerButton = document.getElementById('burger_menu_button');
+  burgerButton.innerHTML = '☰';
 }
 
 function closeBurgerMenu() {
-  let burgerNav = document.getElementById('burgerNav');
+  let burgerNav = document.getElementById('burger_nav');
   burgerNav.style.display = 'none';
 }
 
 function toggleBasket() {
   let basketWrapper = document.getElementsByClassName('basket-wrapper')[0];
   let body = document.body;
-
   if (basketWrapper.classList.contains('show')) {
     basketWrapper.classList.remove('show');
     body.classList.remove('no-scroll');
@@ -232,43 +248,32 @@ function toggleBasket() {
 }
 
 function placeOrder() {
-  let checkbox = document.getElementById('deliveryToggle');
+  let checkbox = document.getElementById('delivery_toggle');
   let itIsDelivery = checkbox.checked;
-
   basketItems = [];
   renderMyOrder();
   saveToLocalStorage();
-
   let confirmationPage = itIsDelivery ? 'delivery.html' : 'pickup.html';
-
   window.location.href = confirmationPage;
 }
 
-function rate(star) {
+function rateByStar(star) {
+  ratings.push(star);
+  let totalRating = 0;
+  for (let ratingIndex = 0; ratingIndex < ratings.length; ratingIndex++) {
+    totalRating = totalRating + ratings[ratingIndex];
+  }
+  let average = totalRating / ratings.length;
   for (let starIndex = 1; starIndex <= 5; starIndex++) {
-    let starElement = document.getElementById("star" + starIndex);
+    let currentStar = document.getElementById("star" + starIndex);
     if (starIndex <= star) {
-      starElement.classList.add("active");
+      currentStar.classList.add("active");
     } else {
-      starElement.classList.remove("active");
+      currentStar.classList.remove("active");
     }
   }
-
-  document.getElementById("ratingText").innerHTML =
-    "<b>Deine Bewertung:</b> (" + star.toFixed(1).replace(".", ",") + " von 5 Sternen)";
-
-  ratings.push(star);
-
-
-  const average = ratings.reduce((acc, rating) => acc + rating, 0) / ratings.length;
-
-  const numReviews = ratings.length;
-
-  document.getElementById("averageRatingText").innerHTML =
-    "<b>Durchschnittliche Bewertung:</b> " + average.toFixed(1).replace(".", ",") + " von 5 Sternen";
-  document.getElementById("numReviewsText").innerHTML =
-    "<b>Anzahl der Bewertungen:</b> " + numReviews;
-
+  document.getElementById("average_rating_text").innerHTML = `<b>&#8709;:</b> ${average.toFixed(1).replace(".", ",")} von 5 Sternen`;
+  document.getElementById("num_reviews_text").innerHTML = `<b>${ratings.length}x bewertet</b>`;
   saveToLocalStorage();
 }
 
@@ -277,30 +282,30 @@ function init() {
   renderMyOrder();
 }
 
-function getFromLocalStorage() {
+function updateRatingDisplay(average, numReviews) {
+  document.getElementById("average_rating_text").innerHTML = formatAverageRatingTemplate(average);
+  document.getElementById("num_reviews_text").innerHTML = formatNumReviewsTemplate(numReviews);
+}
 
+function getFromLocalStorage() {
   let items = localStorage.getItem('basketItems');
   let delivery = localStorage.getItem('isDelivery');
   let savedRatings = localStorage.getItem('ratings');
-
-
   if (items) {
     basketItems = JSON.parse(items);
   }
-
   if (delivery !== null) {
     isDelivery = JSON.parse(delivery);
   }
-
   if (savedRatings) {
     ratings = JSON.parse(savedRatings);
-    const average = ratings.reduce((acc, rating) => acc + rating, 0) / ratings.length;
-    const numReviews = ratings.length;
-
-    document.getElementById("averageRatingText").innerHTML =
-      "<b>Durchschnittliche Bewertung:</b> " + average.toFixed(1).replace(".", ",") + " von 5 Sternen";
-    document.getElementById("numReviewsText").innerHTML =
-      "<b>Anzahl der Bewertungen:</b> " + numReviews;
+    let totalRating = 0;
+    for (let rating of ratings) {
+      totalRating += rating;
+    }
+    let average = totalRating / ratings.length;
+    let numReviews = ratings.length;
+    updateRatingDisplay(average, numReviews);
   }
 }
 

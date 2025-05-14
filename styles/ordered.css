@@ -1,20 +1,18 @@
-/* Reset some default browser styles */
 html,
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Arial', sans-serif; /* Setzt eine serifenlose Schriftart für bessere Lesbarkeit */
-    height: 100%; /* Damit die Seite die volle Höhe des Bildschirms einnimmt */
+    font-family: 'Arial', sans-serif;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Der Inhalt wird zwischen Header und Footer verteilt */
-    background-color: #f7f7f7; /* Helles Grau für den Hintergrund */
+    justify-content: space-between;
+    background-color: #f7f7f7;
 }
 
-/* Header-Stile */
 header {
     width: 100%;
-    background-color: rgb(255, 128, 0); /* Das ursprüngliche Orange */
+    background-color: rgb(255, 128, 0);
     padding: 15px 20px;
     display: flex;
     justify-content: center;
@@ -28,28 +26,26 @@ header img {
 }
 
 header img:hover {
-    transform: scale(1.05); /* Leichte Vergrößerung bei Hover */
+    transform: scale(1.05);
 }
 
-/* Hauptinhalt (info-ordered) */
 .main-content {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-grow: 1; /* Der Hauptinhalt nimmt den gesamten verfügbaren Platz ein */
+    flex-grow: 1;
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
 }
 
-/* Info Container */
 .info-ordered {
-    background-color: #ffffff; /* Weißer Hintergrund für das Container */
+    background-color: #ffffff;
     border-radius: 12px;
     width: 100%;
-    max-width: 600px; /* Maximalbreite, damit der Inhalt nicht zu breit wird */
+    max-width: 600px;
     padding: 40px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sanfter Schatten */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
@@ -68,23 +64,22 @@ header img:hover {
 
 .info-ordered .back-link {
     font-size: 1.1rem;
-    color: rgb(255, 128, 0); /* Das gleiche Orange für den Link */
+    color: rgb(255, 128, 0);
     text-decoration: none;
     padding: 10px 20px;
     border-radius: 5px;
-    border: 2px solid rgb(255, 128, 0); /* Das gleiche Orange für die Rahmenfarbe */
+    border: 2px solid rgb(255, 128, 0);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .info-ordered .back-link:hover {
-    background-color: rgb(255, 128, 0); /* Das gleiche Orange für den Hover-Effekt */
+    background-color: rgb(255, 128, 0);
     color: white;
 }
 
-/* Footer-Stile */
 footer {
     width: 100%;
-    background-color: rgb(255, 128, 0); /* Das ursprüngliche Orange */
+    background-color: rgb(255, 128, 0);
     text-align: center;
     padding: 15px;
 }
@@ -100,7 +95,6 @@ footer p {
     font-size: 1rem;
 }
 
-/* Responsivität für mobile Geräte */
 @media (max-width: 600px) {
     .info-ordered {
         padding: 20px;

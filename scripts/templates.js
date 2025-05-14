@@ -99,8 +99,26 @@ function getBasketSummaryTotalTemplate(totalWithDelivery) {
 function getBasketHeaderTemplate() {
     return `<h1 class="basket-headline">Warenkorb</h1>
             <label class="switch-label">
-            <input type="checkbox" id="deliveryToggle" onchange="toggleDelivery()" ${isDelivery ? 'checked' : ''}>
+            <input type="checkbox" id="delivery_toggle" onchange="toggleDelivery()" ${isDelivery ? 'checked' : ''}>
             <span class="switch-slider"></span>
-            <span id="switchText" class="switch-text">${isDelivery ? 'Lieferung' : 'Abholung'}</span>
+            <span id="switch_text" class="switch-text">${isDelivery ? 'Lieferung' : 'Abholung'}</span>
             </label>`;
+}
+
+function getBasketDivTemplate(header, items, footer) {
+    return `
+    <div class="basket-wrapper">
+      <div class="basket-header">${header}</div>
+      <div class="basket-main">${items}</div>
+      <div class="basket-footer">${footer}</div>
+    </div>
+  `;
+}
+
+function formatAverageRatingTemplate(average) {
+    return "<b>&#8709;:</b> " + average.toFixed(1).replace(".", ",") + " von 5 Sternen";
+}
+
+function formatNumReviewsTemplate(numReviews) {
+    return `<b>${numReviews}x bewertet</b>`;
 }
