@@ -1,5 +1,5 @@
-function getDishTemplate(dish, index) {
-    return `<div onclick="addToBasket(myDishes[${index}])" class="dish-item">
+function getDishTemplate(dish, dishIndex) {
+    return `<div onclick="addToBasket(myDishes[${dishIndex}])" class="dish-item">
             <div class="items-head">
             <h3>${dish.name}</h3>
             <a>+</a>
@@ -9,8 +9,8 @@ function getDishTemplate(dish, index) {
             </div>`;
 }
 
-function getDrinkTemplate(drink, index) {
-    return `<div onclick="addToBasket(myDrinks[${index}])" class="drink-item">
+function getDrinkTemplate(drink, drinkIndex) {
+    return `<div onclick="addToBasket(myDrinks[${drinkIndex}])" class="drink-item">
             <div class="items-head">
             <h3>${drink.name}</h3>
             <a>+</a>
@@ -20,8 +20,8 @@ function getDrinkTemplate(drink, index) {
             </div>`;
 }
 
-function getDessertTemplate(dessert, index) {
-    return `<div onclick="addToBasket(myDesserts[${index}])" class="dessert-item">
+function getDessertTemplate(dessert, dessertIndex) {
+    return `<div onclick="addToBasket(myDesserts[${dessertIndex}])" class="dessert-item">
             <div class="items-head">
             <h3>${dessert.name}</h3>
             <a>+</a>
@@ -31,24 +31,24 @@ function getDessertTemplate(dessert, index) {
             </div>`;
 }
 
-function getBasketItemTemplate(item, index) {
+function getBasketItemTemplate(item, itemIndex) {
     return `<div class="basket-item">
             <h3><b>${item.name}</b></h3>
             <div class="basket-item-info">
             <div class="quantity-controls">
-            <a onclick="decreaseQuantity(${index})">
+            <a onclick="decreaseQuantity(${itemIndex})">
             <span class="minus-icon">−</span>
             </a>
             </div>
             <p> ${item.quantity} X</p>
             <div class="quantity-controls">
-            <a onclick="increaseQuantity(${index})">
+            <a onclick="increaseQuantity(${itemIndex})">
             <span class="plus-icon">+</span>
             </a>
             </div>
             <p>${(item.totalPrice).toFixed(2)} €</p>
             <div class="quantity-controls">
-            <a onclick="removeBasketItem(${index})">
+            <a onclick="removeBasketItem(${itemIndex})">
             <p>✕</p>
             </a>
             </div>
@@ -84,12 +84,12 @@ function getEmptyBasketMessageTemplate() {
     return '<p class="empty-position">Der Warenkorb ist leer.</p>';
 }
 
-function getBasketSummarySubtotalTemplate(totalSum) {
-    return `<p><b>Zwischensumme:</b> ${totalSum.toFixed(2)} €</p>`;
+function getBasketSummarySubtotalTemplate(totalSummary) {
+    return `<p><b>Zwischensumme:</b> ${totalSummary.toFixed(2)} €</p>`;
 }
 
-function getBasketSummaryDeliveryFeeTemplate(deliveryFee) {
-    return `<p><b>Liefergebühr:</b> ${deliveryFee.toFixed(2)} €</p>`;
+function getBasketSummaryDeliveryPriceTemplate(deliveryPrice) {
+    return `<p><b>Liefergebühr:</b> ${deliveryPrice.toFixed(2)} €</p>`;
 }
 
 function getBasketSummaryTotalTemplate(totalWithDelivery) {
@@ -99,8 +99,18 @@ function getBasketSummaryTotalTemplate(totalWithDelivery) {
 function getBasketHeaderTemplate() {
     return `<h1 class="basket-headline">Warenkorb</h1>
             <label class="switch-label">
-            <input type="checkbox" id="deliveryToggle" onchange="toggleDelivery()" ${isDelivery ? 'checked' : ''}>
+            <input type="checkbox" id="delivery_toggle" onchange="toggleDelivery()" ${isDelivery ? 'checked' : ''}>
             <span class="switch-slider"></span>
-            <span id="switchText" class="switch-text">${isDelivery ? 'Lieferung' : 'Abholung'}</span>
+            <span id="switch_text" class="switch-text">${isDelivery ? 'Lieferung' : 'Abholung'}</span>
             </label>`;
+}
+
+function getBasketTemplate(header, items, footer) {
+  return `<div class="basket-header">${header}</div>
+          <div class="basket-items">${items}</div>
+          <div class="basket-footer">${footer}</div>`;
+}
+
+function getOrderButtonTemplate() {
+  return `<button class="order-button" onclick="placeOrder()">Jetzt bestellen</button>`;
 }

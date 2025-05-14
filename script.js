@@ -2,6 +2,7 @@ let deliveryPrice = 4.99;
 let basketItems = [];
 let isDelivery = true;
 let ratings = [];
+let basketIsOpen = false;
 
 function renderMyDishes() {
   let contentRef = document.getElementById('content_main');
@@ -21,24 +22,40 @@ function renderMyDesserts() {
 function renderMyOrder() {
   let basketContainer = document.getElementById('basket_container');
   let header = getBasketHeaderTemplate();
-  let items = '';
-  let footer = '';
+  let items = getBasketItemsContent();
+  let footer = getBasketFooterContent();
+  basketContainer.innerHTML = getBasketTemplate(header, items, footer);
+  saveToLocalStorage();
+}
+
+function getBasketItemsContent() {
   if (basketItems.length === 0) {
-    items = getEmptyBasketMessageTemplate();
+    return getEmptyBasketMessageTemplate();
   } else {
-    let totalSum = 0;
+    let items = '';
+    let totalSummary = 0;
     for (let itemIndex = 0; itemIndex < basketItems.length; itemIndex++) {
       let item = basketItems[itemIndex];
-      totalSum += item.totalPrice;
+      totalSummary += item.totalPrice;
       items += getBasketItemTemplate(item, itemIndex);
     }
-    footer = getBasketSummary(totalSum);
-    footer += `<button class="order-button" onclick="placeOrder()">Jetzt bestellen</button>`;
+    return items;
   }
-  basketContainer.innerHTML = `<div class="basket-header">${header}</div>
-                                <div class="basket-items">${items}</div>
-                                <div class="basket-footer">${footer}</div>`;
-  saveToLocalStorage();
+}
+
+function getBasketFooterContent() {
+  let totalSummary = getTotalSummary();
+  let footer = getBasketSummary(totalSummary);
+  footer += getOrderButtonTemplate();
+  return footer;
+}
+
+function getTotalSummary() {
+  let totalSummary = 0;
+  for (let itemIndex = 0; itemIndex < basketItems.length; itemIndex++) {
+    totalSummary += basketItems[itemIndex].totalPrice;
+  }
+  return totalSummary;
 }
 
 function activateCategory(category) {
@@ -51,34 +68,34 @@ function activateCategory(category) {
   }
 }
 
-function removeBasketItem(index) {
-  basketItems.splice(index, 1);
+function removeBasketItem(indexOfItemToRemove) {
+  basketItems.splice(indexOfItemToRemove, 1);
   renderMyOrder();
   saveToLocalStorage();
 }
 
 function toggleDelivery() {
-  let toggle = document.getElementById('deliveryToggle');
+  let toggle = document.getElementById('delivery_toggle');
   isDelivery = toggle.checked;
-  let switchText = document.getElementById('switchText');
+  let switchText = document.getElementById('switch_text');
   switchText.innerText = isDelivery ? 'Lieferung' : 'Abholung';
   renderMyOrder();
   saveToLocalStorage();
 }
 
-function increaseQuantity(index) {
-  basketItems[index].quantity += 1;
-  basketItems[index].totalPrice = basketItems[index].quantity * basketItems[index].price;
+function increaseQuantity(basketItemIndex) {
+  basketItems[basketItemIndex].quantity += 1;
+  basketItems[basketItemIndex].totalPrice = basketItems[basketItemIndex].quantity * basketItems[basketItemIndex].price;
   renderMyOrder();
   saveToLocalStorage();
 }
 
-function decreaseQuantity(index) {
-  if (basketItems[index].quantity > 1) {
-    basketItems[index].quantity -= 1;
-    basketItems[index].totalPrice = basketItems[index].quantity * basketItems[index].price;
+function decreaseQuantity(basketItemIndex) {
+  if (basketItems[basketItemIndex].quantity > 1) {
+    basketItems[basketItemIndex].quantity -= 1;
+    basketItems[basketItemIndex].totalPrice = basketItems[basketItemIndex].quantity * basketItems[basketItemIndex].price;
   } else {
-    basketItems.splice(index, 1);
+    basketItems.splice(basketItemIndex, 1);
   }
   renderMyOrder();
   saveToLocalStorage();
@@ -87,25 +104,43 @@ function decreaseQuantity(index) {
 function addToBasket(item) {
   let itemCategory = getItemCategory(item);
   let existingItemIndex = findItemInBasket(item, itemCategory);
-  (existingItemIndex !== -1) ? updateItemQuantityInBasket(existingItemIndex, item) : addNewItemToBasket(item, itemCategory);
+  if (existingItemIndex !== -1) {
+    updateItemQuantityInBasket(existingItemIndex, item);
+  } else {
+    addNewItemToBasket(item, itemCategory);
+  }
   renderMyOrder();
   saveToLocalStorage();
 }
 
 function getItemCategory(item) {
-  if (isDrink(item))
+  if (isDrink(item)) {
     return 'drink';
-  if (isDessert(item))
+  }
+  if (isDessert(item)) {
     return 'dessert';
+  }
   return 'dish';
 }
 
 function isDrink(item) {
-  return myDrinks.some(drink => drink.name === item.name);
+  for (let drinkIndex = 0; drinkIndex < myDrinks.length; drinkIndex++) {
+    let drink = myDrinks[drinkIndex];
+    if (drink.name === item.name) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function isDessert(item) {
-  return myDesserts.some(dessert => dessert.name === item.name);
+  for (let dessertIndex = 0; dessertIndex < myDesserts.length; dessertIndex++) {
+    let dessert = myDesserts[dessertIndex];
+    if (dessert.name === item.name) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function getDishes() {
@@ -159,12 +194,12 @@ function getDessertsList() {
   return list;
 }
 
-function getBasketSummary(totalSum) {
+function getBasketSummary(totalSummary) {
   let deliveryFee = isDelivery ? deliveryPrice : 0;
-  let totalWithDelivery = totalSum + deliveryFee;
+  let totalWithDelivery = totalSummary + deliveryFee;
   let summary = `<div class="order-summary">`;
-  summary += getBasketSummarySubtotalTemplate(totalSum);
-  summary += getBasketSummaryDeliveryFeeTemplate(deliveryFee);
+  summary += getBasketSummarySubtotalTemplate(totalSummary);
+  summary += getBasketSummaryDeliveryPriceTemplate(deliveryFee);
   summary += getBasketSummaryTotalTemplate(totalWithDelivery);
   summary += `</div>`;
   return summary;
@@ -211,7 +246,6 @@ function renderAll() {
 function closeBurgerMenu() {
   let burgerNav = document.getElementById('burger_nav');
   let burgerButton = document.getElementById('burger_menu_button');
-
   burgerNav.style.display = 'none';
   burgerButton.innerHTML = '☰';
 }
@@ -219,7 +253,6 @@ function closeBurgerMenu() {
 function toggleBurgerMenu() {
   let burgerNav = document.getElementById('burger_nav');
   let burgerButton = document.getElementById('burger_menu_button');
-
   if (burgerNav.style.display === 'flex') {
     burgerNav.style.display = 'none';
     burgerButton.innerHTML = '☰';
@@ -241,41 +274,62 @@ function closeBurgerMenu() {
 
 function toggleBasket() {
   let basketWrapper = document.getElementsByClassName('basket-wrapper')[0];
-  let body = document.body;
-  if (basketWrapper.classList.contains('show')) {
-    basketWrapper.classList.remove('show');
-    body.classList.remove('no-scroll');
+  let pageBody = document.body;
+  if (basketIsOpen) {
+    basketWrapper.className = "basket-wrapper";
+    pageBody.className = "";
+    basketIsOpen = false;
   } else {
-    basketWrapper.classList.add('show');
-    body.classList.add('no-scroll');
+    basketWrapper.className = "basket-wrapper show";
+    pageBody.className = "no-scroll";
+    basketIsOpen = true;
   }
 }
 
 function placeOrder() {
-  let checkbox = document.getElementById('deliveryToggle');
-  let itIsDelivery = checkbox.checked;
+  let checkbox = document.getElementById('delivery_toggle');
+  let isItDelivery = checkbox.checked;
   basketItems = [];
   renderMyOrder();
   saveToLocalStorage();
-  let confirmationPage = itIsDelivery ? 'delivery.html' : 'pickup.html';
+  let confirmationPage = isItDelivery ? 'delivery.html' : 'pickup.html';
+  goToPage(confirmationPage);
+}
+
+function goToPage(confirmationPage) {
   window.location.href = confirmationPage;
 }
 
-function rate(star) {
-  ratings.push(star);
-  let sum = ratings.reduce((acc, val) => acc + val, 0);
-  let average = sum / ratings.length;
-  for (let i = 1; i <= 5; i++) {
-    let starEl = document.getElementById("star_" + i);
-    if (i <= star) {
-      starEl.classList.add("active");
-    } else {
-      starEl.classList.remove("active");
-    }
-  }
-  document.getElementById("average_rating_text").innerHTML = `<b>&#8709;:</b> ${average.toFixed(1).replace(".", ",")} von 5 Sternen`;
-  document.getElementById("num_reviews_text").innerHTML = `<b>${ratings.length}x bewertet</b>`;
+function rateIt(selectedStar) {
+  ratings.push(selectedStar);
+  let averageRating = calculateAverageRating();
+  updateStarDisplay(selectedStar);
+  updateRatingTexts(averageRating);
   saveToLocalStorage();
+}
+
+function calculateAverageRating() {
+  let totalRatingPoints = 0;
+  let numberOfRatings = ratings.length;
+  for (let ratingIndex = 0; ratingIndex < numberOfRatings; ratingIndex++) {
+    let singleRating = ratings[ratingIndex];
+    totalRatingPoints += singleRating;
+  }
+  let averageRating = totalRatingPoints / numberOfRatings;
+  return averageRating;
+}
+
+function updateStarDisplay(activeStars) {
+  for (let starPosition = 1; starPosition <= 5; starPosition++) {
+    let star = document.getElementById("star_" + starPosition);
+    star.classList.toggle("active", starPosition <= activeStars);
+  }
+}
+
+function updateRatingTexts(average) {
+  let formattedAverage = average.toFixed(1).replace(".", ",");
+  document.getElementById("average_rating_text").innerHTML = `<b>&#8709;:</b> ${formattedAverage} von 5 Sternen`;
+  document.getElementById("num_reviews_text").innerHTML = `<b>${ratings.length}x bewertet</b>`;
 }
 
 function init() {
@@ -284,46 +338,79 @@ function init() {
 }
 
 function getFromLocalStorage() {
+  loadBasketItems();
+  loadDeliveryStatus();
+  loadRatings();
+  renderMyOrder();
+}
+
+function loadBasketItems() {
   let items = localStorage.getItem('basketItems');
-  let delivery = localStorage.getItem('isDelivery');
-  let savedRatings = localStorage.getItem('ratings');
   if (items) {
     basketItems = JSON.parse(items);
   }
+}
+
+function loadDeliveryStatus() {
+  let delivery = localStorage.getItem('isDelivery');
   if (delivery !== null) {
     isDelivery = JSON.parse(delivery);
   }
+}
+
+function loadRatings() {
+  let savedRatings = localStorage.getItem('ratings');
   if (savedRatings) {
     ratings = JSON.parse(savedRatings);
-    let numReviews = ratings.length;
-    if (numReviews > 0) {
-      let average = ratings.reduce((acc, rating) => acc + rating, 0) / numReviews;
-      document.getElementById("average_rating_text").innerHTML = "<b>&#8709;:</b> " + average.toFixed(1).replace(".", ",") + " von 5 Sternen";
-      document.getElementById("num_reviews_text").innerHTML = `<b>${numReviews}x bewertet</b>`;
-    } else {
-      document.getElementById("average_rating_text").innerHTML = "<b>&#8709;:</b> 0,0 von 5 Sternen";
-      document.getElementById("num_reviews_text").innerHTML = `0x <b>bewertet</b>`;
-    }
+    updateRatingDisplay();
   }
 }
 
-  function saveToLocalStorage() {
-    localStorage.setItem('basketItems', JSON.stringify(basketItems));
-    localStorage.setItem('isDelivery', JSON.stringify(isDelivery));
-    localStorage.setItem('ratings', JSON.stringify(ratings));
+function updateRatingDisplay() {
+  let numberOfRatings = ratings.length;
+  if (numberOfRatings > 0) {
+    let averageRating = calculateAverageRating();
+    updateRatingText(averageRating, numberOfRatings);
+  } else {
+    displayNoRatings();
   }
+}
 
-  function loadFromLocalStorage() {
-    let savedItems = JSON.parse(localStorage.getItem('basketItems'));
-    if (savedItems) {
-      basketItems = savedItems;
-    }
+function calculateAverageRating() {
+  let totalRatingPoints = 0;
+  for (let rating of ratings) {
+    totalRatingPoints += rating;
   }
+  return totalRatingPoints / ratings.length;
+}
 
-  function clearLocalStorage() {
-    localStorage.removeItem('basketItems');
-    localStorage.removeItem('isDelivery');
-    basketItems = [];
-    isDelivery = false;
-    renderMyOrder();
+function updateRatingText(averageRating, numberOfRatings) {
+  document.getElementById("average_rating_text").innerHTML = `<b>&#8709;:</b> ${averageRating.toFixed(1).replace(".", ",")} von 5 Sternen`;
+  document.getElementById("num_reviews_text").innerHTML = `<b>${numberOfRatings}x bewertet</b>`;
+}
+
+function displayNoRatings() {
+  document.getElementById("average_rating_text").innerHTML = "<b>&#8709;:</b> 0,0 von 5 Sternen";
+  document.getElementById("num_reviews_text").innerHTML = `0x <b>bewertet</b>`;
+}
+
+function saveToLocalStorage() {
+  localStorage.setItem('basketItems', JSON.stringify(basketItems));
+  localStorage.setItem('isDelivery', JSON.stringify(isDelivery));
+  localStorage.setItem('ratings', JSON.stringify(ratings));
+}
+
+function loadFromLocalStorage() {
+  let savedItems = JSON.parse(localStorage.getItem('basketItems'));
+  if (savedItems) {
+    basketItems = savedItems;
   }
+}
+
+function clearLocalStorage() {
+  localStorage.removeItem('basketItems');
+  localStorage.removeItem('isDelivery');
+  basketItems = [];
+  isDelivery = false;
+  renderMyOrder();
+}
