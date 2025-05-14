@@ -1,24 +1,25 @@
 let deliveryPrice = 4.99;
 let basketItems = [];
 let isDelivery = true;
+let ratings = [];
 
 function renderMyDishes() {
-  let contentRef = document.getElementById('content');
+  let contentRef = document.getElementById('content_main');
   contentRef.innerHTML += getDishes();
 }
 
 function renderMyDrinks() {
-  let contentRef = document.getElementById('content');
+  let contentRef = document.getElementById('content_main');
   contentRef.innerHTML += getDrinks();
 }
 
 function renderMyDesserts() {
-  let contentRef = document.getElementById('content');
+  let contentRef = document.getElementById('content_main');
   contentRef.innerHTML += getDesserts();
 }
 
 function renderMyOrder() {
-  let basketContainer = document.getElementById('basket-container');
+  let basketContainer = document.getElementById('basket_container');
   let header = getBasketHeaderTemplate();
   let items = '';
   let footer = '';
@@ -37,7 +38,6 @@ function renderMyOrder() {
   basketContainer.innerHTML = `<div class="basket-header">${header}</div>
                                 <div class="basket-items">${items}</div>
                                 <div class="basket-footer">${footer}</div>`;
-
   saveToLocalStorage();
 }
 
@@ -202,26 +202,46 @@ function renderAll() {
   renderMyDrinks();
   renderMyDesserts();
   renderMyOrder();
-  document.getElementById('dishesLink').onclick = () => activateCategory('dishes');
-  document.getElementById('drinksLink').onclick = () => activateCategory('drinks');
-  document.getElementById('dessertsLink').onclick = () => activateCategory('desserts');
+  document.getElementById('dishes_link').onclick = () => activateCategory('dishes');
+  document.getElementById('drinks_link').onclick = () => activateCategory('drinks');
+  document.getElementById('desserts_link').onclick = () => activateCategory('desserts');
   activateCategory('dishes');
 }
 
+function closeBurgerMenu() {
+  let burgerNav = document.getElementById('burger_nav');
+  let burgerButton = document.getElementById('burger_menu_button');
+
+  burgerNav.style.display = 'none';
+  burgerButton.innerHTML = '☰';
+}
+
 function toggleBurgerMenu() {
-  let burgerNav = document.getElementById('burgerNav');
-  burgerNav.style.display = burgerNav.style.display === 'flex' ? 'none' : 'flex';
+  let burgerNav = document.getElementById('burger_nav');
+  let burgerButton = document.getElementById('burger_menu_button');
+
+  if (burgerNav.style.display === 'flex') {
+    burgerNav.style.display = 'none';
+    burgerButton.innerHTML = '☰';
+  } else {
+    burgerNav.style.display = 'flex';
+    burgerButton.innerHTML = '✕';
+  }
+}
+
+function toggleBurgerButton() {
+  let burgerButton = document.getElementById('burger_menu_button');
+  burgerButton.innerHTML = '☰';
 }
 
 function closeBurgerMenu() {
-  let burgerNav = document.getElementById('burgerNav');
+  let burgerNav = document.getElementById('burger_nav');
   burgerNav.style.display = 'none';
 }
 
 function toggleBasket() {
   let basketWrapper = document.getElementsByClassName('basket-wrapper')[0];
   let body = document.body;
-
   if (basketWrapper.classList.contains('show')) {
     basketWrapper.classList.remove('show');
     body.classList.remove('no-scroll');
@@ -234,41 +254,27 @@ function toggleBasket() {
 function placeOrder() {
   let checkbox = document.getElementById('deliveryToggle');
   let itIsDelivery = checkbox.checked;
-
   basketItems = [];
   renderMyOrder();
   saveToLocalStorage();
-
   let confirmationPage = itIsDelivery ? 'delivery.html' : 'pickup.html';
-
   window.location.href = confirmationPage;
 }
 
 function rate(star) {
-  for (let starIndex = 1; starIndex <= 5; starIndex++) {
-    let starElement = document.getElementById("star" + starIndex);
-    if (starIndex <= star) {
-      starElement.classList.add("active");
+  ratings.push(star);
+  let sum = ratings.reduce((acc, val) => acc + val, 0);
+  let average = sum / ratings.length;
+  for (let i = 1; i <= 5; i++) {
+    let starEl = document.getElementById("star_" + i);
+    if (i <= star) {
+      starEl.classList.add("active");
     } else {
-      starElement.classList.remove("active");
+      starEl.classList.remove("active");
     }
   }
-
-  document.getElementById("ratingText").innerHTML =
-    "<b>Deine Bewertung:</b> (" + star.toFixed(1).replace(".", ",") + " von 5 Sternen)";
-
-  ratings.push(star);
-
-
-  const average = ratings.reduce((acc, rating) => acc + rating, 0) / ratings.length;
-
-  const numReviews = ratings.length;
-
-  document.getElementById("averageRatingText").innerHTML =
-    "<b>Durchschnittliche Bewertung:</b> " + average.toFixed(1).replace(".", ",") + " von 5 Sternen";
-  document.getElementById("numReviewsText").innerHTML =
-    "<b>Anzahl der Bewertungen:</b> " + numReviews;
-
+  document.getElementById("average_rating_text").innerHTML = `<b>&#8709;:</b> ${average.toFixed(1).replace(".", ",")} von 5 Sternen`;
+  document.getElementById("num_reviews_text").innerHTML = `<b>${ratings.length}x bewertet</b>`;
   saveToLocalStorage();
 }
 
@@ -278,49 +284,46 @@ function init() {
 }
 
 function getFromLocalStorage() {
-
   let items = localStorage.getItem('basketItems');
   let delivery = localStorage.getItem('isDelivery');
   let savedRatings = localStorage.getItem('ratings');
-
-
   if (items) {
     basketItems = JSON.parse(items);
   }
-
   if (delivery !== null) {
     isDelivery = JSON.parse(delivery);
   }
-
   if (savedRatings) {
     ratings = JSON.parse(savedRatings);
-    const average = ratings.reduce((acc, rating) => acc + rating, 0) / ratings.length;
-    const numReviews = ratings.length;
-
-    document.getElementById("averageRatingText").innerHTML =
-      "<b>Durchschnittliche Bewertung:</b> " + average.toFixed(1).replace(".", ",") + " von 5 Sternen";
-    document.getElementById("numReviewsText").innerHTML =
-      "<b>Anzahl der Bewertungen:</b> " + numReviews;
+    let numReviews = ratings.length;
+    if (numReviews > 0) {
+      let average = ratings.reduce((acc, rating) => acc + rating, 0) / numReviews;
+      document.getElementById("average_rating_text").innerHTML = "<b>&#8709;:</b> " + average.toFixed(1).replace(".", ",") + " von 5 Sternen";
+      document.getElementById("num_reviews_text").innerHTML = `<b>${numReviews}x bewertet</b>`;
+    } else {
+      document.getElementById("average_rating_text").innerHTML = "<b>&#8709;:</b> 0,0 von 5 Sternen";
+      document.getElementById("num_reviews_text").innerHTML = `0x <b>bewertet</b>`;
+    }
   }
 }
 
-function saveToLocalStorage() {
-  localStorage.setItem('basketItems', JSON.stringify(basketItems));
-  localStorage.setItem('isDelivery', JSON.stringify(isDelivery));
-  localStorage.setItem('ratings', JSON.stringify(ratings));
-}
-
-function loadFromLocalStorage() {
-  let savedItems = JSON.parse(localStorage.getItem('basketItems'));
-  if (savedItems) {
-    basketItems = savedItems;
+  function saveToLocalStorage() {
+    localStorage.setItem('basketItems', JSON.stringify(basketItems));
+    localStorage.setItem('isDelivery', JSON.stringify(isDelivery));
+    localStorage.setItem('ratings', JSON.stringify(ratings));
   }
-}
 
-function clearLocalStorage() {
-  localStorage.removeItem('basketItems');
-  localStorage.removeItem('isDelivery');
-  basketItems = [];
-  isDelivery = false;
-  renderMyOrder();
-}
+  function loadFromLocalStorage() {
+    let savedItems = JSON.parse(localStorage.getItem('basketItems'));
+    if (savedItems) {
+      basketItems = savedItems;
+    }
+  }
+
+  function clearLocalStorage() {
+    localStorage.removeItem('basketItems');
+    localStorage.removeItem('isDelivery');
+    basketItems = [];
+    isDelivery = false;
+    renderMyOrder();
+  }
