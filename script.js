@@ -3,6 +3,7 @@ let basketItems = [];
 let isDelivery = true;
 let ratings = [];
 let basketIsOpen = false;
+let hasRated = false;
 
 function renderMyDishes() {
   let contentRef = document.getElementById('content_main');
@@ -41,6 +42,15 @@ function getBasketItemsContent() {
     }
     return items;
   }
+}
+
+function getBasketItemQuantity(name) {
+    for (let basketIndex = 0; basketIndex < basketItems.length; basketIndex++) {
+        if (basketItems[basketIndex].name === name) {
+            return basketItems[basketIndex].quantity;
+        }
+    }
+    return 0;
 }
 
 function getBasketFooterContent() {
@@ -195,11 +205,16 @@ function getDessertsList() {
 }
 
 function getBasketSummary(totalSummary) {
-  let deliveryFee = isDelivery ? deliveryPrice : 0;
-  let totalWithDelivery = totalSummary + deliveryFee;
+  let deliveryCost = isDelivery ? deliveryPrice : 0;
+  let totalWithDelivery = totalSummary + deliveryCost;
+  let itemCount = 0;
+  for (let itemIndex = 0; itemIndex < basketItems.length; itemIndex++) {
+    itemCount += basketItems[itemIndex].quantity;
+  }
   let summary = `<div class="order-summary">`;
+  summary += getBasketSummaryItemCountTemplate(itemCount);
+  summary += getBasketSummaryDeliveryPriceTemplate(deliveryCost);
   summary += getBasketSummarySubtotalTemplate(totalSummary);
-  summary += getBasketSummaryDeliveryPriceTemplate(deliveryFee);
   summary += getBasketSummaryTotalTemplate(totalWithDelivery);
   summary += `</div>`;
   return summary;
@@ -301,6 +316,8 @@ function goToPage(confirmationPage) {
 }
 
 function rateIt(selectedStar) {
+  if (hasRated) return;
+  hasRated = true;
   ratings.push(selectedStar);
   let averageRating = calculateAverageRating();
   updateStarDisplay(selectedStar);

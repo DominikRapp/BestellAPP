@@ -48,6 +48,10 @@ p {
     color: #333;
 }
 
+.text-color-white {
+    color: white;
+}
+
 header {
     background-color: rgb(255, 128, 0);
     padding: 12px 24px;
@@ -217,9 +221,9 @@ main {
 }
 
 .order-button.disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .basket:hover {
@@ -242,6 +246,15 @@ main {
     margin-top: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+.order-summary p {
+    margin: 4px 0;
+    font-size: 16px;
+}
+
+.order-summary b {
+    font-weight: 600;
 }
 
 .basket,

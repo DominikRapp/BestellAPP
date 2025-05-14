@@ -117,3 +117,7 @@ function getOrderButtonTemplate() {
   }
   return `<button class="order-button" onclick="placeOrder()">Jetzt bestellen</button>`;
 }
+
+function getBasketSummaryItemCountTemplate(itemCount) {
+  return `<p><b>Artikel:</b> ${itemCount}</p>`;
+}
