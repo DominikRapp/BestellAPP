@@ -45,12 +45,12 @@ function getBasketItemsContent() {
 }
 
 function getBasketItemQuantity(name) {
-    for (let basketIndex = 0; basketIndex < basketItems.length; basketIndex++) {
-        if (basketItems[basketIndex].name === name) {
-            return basketItems[basketIndex].quantity;
-        }
+  for (let basketIndex = 0; basketIndex < basketItems.length; basketIndex++) {
+    if (basketItems[basketIndex].name === name) {
+      return basketItems[basketIndex].quantity;
     }
-    return 0;
+  }
+  return 0;
 }
 
 function getBasketFooterContent() {
@@ -319,6 +319,8 @@ function rateIt(selectedStar) {
   if (hasRated) return;
   hasRated = true;
   ratings.push(selectedStar);
+  localStorage.setItem('hasRated', 'true');
+  localStorage.setItem('userRating', selectedStar);
   let averageRating = calculateAverageRating();
   updateStarDisplay(selectedStar);
   updateRatingTexts(averageRating);
@@ -349,9 +351,17 @@ function updateRatingTexts(average) {
   document.getElementById("num_reviews_text").innerHTML = `<b>${ratings.length}x bewertet</b>`;
 }
 
+function checkIfUserHasRated() {
+  let savedHasRated = localStorage.getItem('hasRated');
+  if (savedHasRated === 'true') {
+    hasRated = true;
+  }
+}
+
 function init() {
   getFromLocalStorage();
   renderMyOrder();
+  checkIfUserHasRated();
 }
 
 function getFromLocalStorage() {
@@ -380,6 +390,17 @@ function loadRatings() {
   if (savedRatings) {
     ratings = JSON.parse(savedRatings);
     updateRatingDisplay();
+  }
+  let hasUserRated = localStorage.getItem('hasRated');
+  if (hasUserRated === 'true') {
+    hasRated = true;
+    let userRatingText = localStorage.getItem('userRating');
+    if (userRatingText !== null && userRatingText !== '') {
+      let userRatingNumber = Number(userRatingText);
+      if (userRatingNumber > 0 && userRatingNumber <= 5) {
+        updateStarDisplay(userRatingNumber);
+      }
+    }
   }
 }
 
